@@ -1,11 +1,12 @@
 langchain
-python-dotenv
-langchain-openai
 langchain-community
-streamlit
-pypdf
 langchain-text-splitters
+langchain-openai
 langchain-chroma
+pypdf
+python-dotenv
+streamlit
+protobuf<5.0.0
 
 
 
