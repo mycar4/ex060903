@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 학습 진도율 관리 (파스텔 무지개 버전)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .heat-bg { transition: background-image 1.2s ease, border-color 1.2s ease, background-color 1.2s ease; background-size: cover; background-position: center; }
+        .completed { text-decoration: line-through; opacity: 0.5; color: #4b5563; }
+        .clickable-card { cursor: pointer; transition: transform 0.2s; }
+        .clickable-card:hover { transform: translateY(-2px); }
+        .scroll-area { height: calc(100vh - 350px); overflow-y: auto; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-indigo-50 text-gray-800 h-screen flex flex-col overflow-hidden p-6">
+
+    <div class="max-w-6xl mx-auto w-full">
+        <div id="heat-box" class="heat-bg rounded-3xl p-8 mb-6 border-[8px] shadow-xl flex flex-col items-center justify-center text-center flex-shrink-0">
+            <h2 class="text-xl font-black uppercase tracking-widest bg-white/60 px-4 py-1 rounded-full shadow-sm">AI 에이전트 학습 진도율 (상담/발표제외)</h2>
+            <div id="progress-percent" class="text-[80px] font-black leading-none my-2 drop-shadow-sm">0%</div>
+            <p id="heat-status" class="text-xl font-bold bg-white/60 px-6 py-1 rounded-full shadow-sm">학습의 무지개를 피워보세요!</p>
+        </div>
+
+        <div class="scroll-area pr-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="list-left" class="space-y-4"></div>
+                <div id="list-right" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const lessons = [
+            { date: "5.27", title: "재단 오리엔테이션, 기초교육 등" }, { date: "5.28", title: "개발환경 셋팅 및 실습" },
+            { date: "5.29", title: "인공지능이란?" }, { date: "6.01", title: "제미나이 사용법 및 툴 비교" },
+            { date: "6.02", title: "제미나이 사용법 및 툴 비교" }, { date: "6.04", title: "제미나이 이용한 바이브코딩" },
+            { date: "6.05", title: "제미나이 이용한 바이브코딩" }, { date: "6.08", title: "제미나이 이용한 바이브코딩" },
+            { date: "6.09", title: "OpenAI API 연동 방법 및 Key" }, { date: "6.10", title: "OpenAI API 연동 방법 및 Key" },
+            { date: "6.11", title: "OpenAI API 연동 방법 및 Key" }, { date: "6.12", title: "LLM 웹 서비스 배포" },
+            { date: "6.15", title: "Streamlit을 활용한 웹 배포" }, { date: "6.16", title: "Streamlit을 활용한 웹 배포" },
+            { date: "6.17", title: "LLaMA2 오프라인 셋팅" }, { date: "6.18", title: "SQL 생성 및 시각화 데이터 분석가" },
+            { date: "6.19", title: "SQL 생성 및 시각화 데이터 분석가" }, { date: "6.22", title: "개인 비서형 자동화 에이전트" },
+            { date: "6.23", title: "개인 비서형 자동화 에이전트" }, { date: "6.24", title: "블로그 만들기 및 실습 주제" }
+        ];
+
+        let completed = JSON.parse(localStorage.getItem('ai_progress')) || new Array(lessons.length).fill(false);
+
+        function updateUI() {
+            const leftList = document.getElementById('list-left');
+            const rightList = document.getElementById('list-right');
+            leftList.innerHTML = ''; rightList.innerHTML = '';
+            
+            const count = completed.filter(v => v).length;
+            const percent = Math.round((count / lessons.length) * 100);
+
+            const box = document.getElementById('heat-box');
+            // 파스텔 톤 무지개 컬러 팔레트 (빨주노초파남보 순서 활용)
+            const pastelColors = ["#fecaca", "#fed7aa", "#fef08a", "#d9f99d", "#bbf7d0", "#bae6fd", "#bfdbfe", "#ddd6fe", "#f5d0fe", "#fbcfe8", "#fee2e2"];
+            const statusMessages = ["시작이 반이에요!", "조금씩 익숙해지네요!", "흥미진진한 단계 진입!", "기술이 손에 잡혀요!", "절반 지점 돌파! 대단해요!", "더 깊이 파고드는 중!", "이제는 고수 느낌이 나요!", "거의 다 왔어요!", "마무리 단계입니다!", "완성을 향해!", "AI 마스터 등극!"];
+            
+            const level = Math.floor(percent / 10);
+            box.style.backgroundColor = pastelColors[level];
+            box.style.borderColor = "#ffffff";
+            box.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4))`;
+            
+            document.getElementById('heat-status').innerText = statusMessages[level];
+            document.getElementById('progress-percent').innerText = percent + "%";
+            document.getElementById('progress-percent').style.color = "#4338ca";
+
+            lessons.forEach((l, i) => {
+                const card = document.createElement('div');
+                card.className = `clickable-card flex items-center p-4 rounded-xl border-2 transition ${completed[i] ? 'bg-white/60 border-indigo-200' : 'bg-white border-indigo-50 shadow-sm hover:border-indigo-200'}`;
+                card.innerHTML = `
+                    <input type="checkbox" ${completed[i] ? 'checked' : ''} class="w-5 h-5 mr-4 accent-indigo-500 pointer-events-none">
+                    <span class="${completed[i] ? 'completed' : ''} font-bold text-base text-gray-700"><span class="text-indigo-400 mr-2">[${l.date}]</span>${l.title}</span>
+                `;
+                card.onclick = () => toggle(i);
+                (i < 10 ? leftList : rightList).appendChild(card);
+            });
+            localStorage.setItem('ai_progress', JSON.stringify(completed));
+        }
+
+        function toggle(i) {
+            completed[i] = !completed[i];
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
