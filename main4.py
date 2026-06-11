@@ -13,6 +13,9 @@ from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 
+
+
+
 # 환경변수 로드 (.env 파일에서 OPENAI_API_KEY 가져오기)
 load_dotenv()
 
